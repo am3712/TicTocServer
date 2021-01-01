@@ -96,6 +96,9 @@ public class ConnectionHandeller extends Thread {
 
             case GAME_RECORDS_CODE:
                 sendGameRecords();
+                break;
+            case GET_MOVES:
+                sendMoves();
             default:
                 break;
         }
@@ -219,6 +222,15 @@ public class ConnectionHandeller extends Thread {
 
         System.out.println("Records : " + records);
         out.writeObject(records);
+        out.flush();
+    }
+    
+    private void sendMoves() throws IOException{
+        out.writeInt(GET_MOVES);
+        int id = in.readInt();
+        
+        Vector<String> moves = DB.getMoves(id);
+        out.writeObject(moves);
         out.flush();
     }
 

@@ -14,11 +14,21 @@ import java.io.Serializable;
 public class GameRecord implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    private int id;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
     private String date;
     private String winner;
     private String loser;
 
-    public GameRecord(String date, String winner, String loser) {
+    public GameRecord(int id, String date, String winner, String loser) {
+        this.id = id;
         this.date = date;
         this.winner = winner;
         this.loser = loser;

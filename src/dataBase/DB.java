@@ -268,11 +268,11 @@ public class DB {
             checkConnection();
             Statement s = con.createStatement();
             for (int i = 0; i < recordIDs.size(); i++) {
-                String q = "SELECT DATE, WINNERUSERNAME, LOSERUSERNAME FROM  RECORD WHERE ID = '" + recordIDs.get(i) + "'";
+                String q = "SELECT * FROM  RECORD WHERE ID = '" + recordIDs.get(i) + "'";
                 ResultSet rs = s.executeQuery(q);
 
                 while (rs.next()) {
-                    GameRecord gr = new GameRecord(rs.getString("DATE"), rs.getString("WINNERUSERNAME"), rs.getString("LOSERUSERNAME"));
+                    GameRecord gr = new GameRecord(rs.getInt("ID"), rs.getString("DATE"), rs.getString("WINNERUSERNAME"), rs.getString("LOSERUSERNAME"));
 
                     v.add(gr);
                 }
