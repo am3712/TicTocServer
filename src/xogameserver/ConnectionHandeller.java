@@ -98,14 +98,13 @@ public class ConnectionHandeller extends Thread {
             case GAME_RECORDS_CODE:
                 sendGameRecords();
                 break;
-<<<<<<< HEAD
+
             case GET_MOVES:
                 sendMoves();
-=======
+                   break;
             case SAVE_RECORD:
                 saveRecord();
                 break;
->>>>>>> 18bbc9cff8a0288ccf86d89f656c0dc96905186c
             default:
                 break;
         }
