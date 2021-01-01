@@ -139,7 +139,7 @@ public class DB {
         }
     }
 
-    public static int addRecord(Vector<String> moves, String winnerUserName, String loserUserName) {
+    public synchronized static int addRecord(Vector<String> moves, String winnerUserName, String loserUserName) {
         try {
             checkConnection();
             PreparedStatement pst = con.prepareStatement("insert into Record(date,winnerUserName,loserUserName) values (?,?,?);",
@@ -175,12 +175,12 @@ public class DB {
         return -1;
     }
 
-    public static boolean connectRecordIdToPlayers(String record_id, String playerUserName) {
+    public static boolean connectRecordIdToPlayers(int record_id, String playerUserName) {
         try {
             checkConnection();
             try (PreparedStatement pst = con.prepareStatement("insert into player_records values (?,?);")) {
-                pst.setString(1, record_id);
-                pst.setString(2, playerUserName);
+                pst.setInt(2, record_id);
+                pst.setString(1, playerUserName);
 
                 pst.execute();
             }
@@ -299,7 +299,6 @@ public class DB {
         } catch (SQLException ex) {
             Logger.getLogger(DB.class.getName()).log(Level.SEVERE, null, ex);
         }
-
         return moves;
     }
 
