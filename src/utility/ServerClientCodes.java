@@ -29,8 +29,10 @@ public interface ServerClientCodes {
     int ACCEPTING_CODE = 12;
     int REJECTION_CODE = 13;
     int ASKING_GAME_RECORD = 14;
-    
+
     int GET_MOVES = 15;
 
-    int SAVE_RECORD = 16;
+    int SAVE_RECORD_OVER_NETWORK = 16;
+    int SAVE_RECORD_LOCAL = 17;
+    int SAVE_RECORD_NOTIFICATION = 18;
 }
