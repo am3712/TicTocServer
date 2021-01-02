@@ -29,7 +29,7 @@ public class ConnectionHandeller extends Thread {
     private String userName;
     private String anotherUserName;
     private Socket Socket;
-    private int lastRecordId;
+    private int record_id;
     static final Vector<ConnectionHandeller> clientsVector
             = new Vector<ConnectionHandeller>();
 
@@ -39,7 +39,7 @@ public class ConnectionHandeller extends Thread {
             out = new ObjectOutputStream(Socket.getOutputStream());
             in = new ObjectInputStream(Socket.getInputStream());
             clientsVector.add(ConnectionHandeller.this);
-            lastRecordId = -1;
+            record_id = -1;
             start();
         } catch (IOException ex) {
             Logger.getLogger(ConnectionHandeller.class.getName()).log(Level.SEVERE, null, ex);
@@ -52,6 +52,7 @@ public class ConnectionHandeller extends Thread {
             int inputLine;
             while ((inputLine = in.readInt()) != -1) {
                 if (CLIENT_CLOSE == inputLine) {
+                    System.out.println("CLIENT_CLOSE");
                     if (userName != null) {
                         DB.Update(userName, false);
                     }
@@ -98,12 +99,14 @@ public class ConnectionHandeller extends Thread {
             case GAME_RECORDS_CODE:
                 sendGameRecords();
                 break;
-
             case GET_MOVES:
                 sendMoves();
-                   break;
-            case SAVE_RECORD:
-                saveRecord();
+                break;
+            case SAVE_RECORD_OVER_NETWORK:
+                saveRecordOverNetwork();
+                break;
+            case SAVE_RECORD_LOCAL:
+                saveRecordLocalMode();
                 break;
             default:
                 break;
@@ -228,22 +231,21 @@ public class ConnectionHandeller extends Thread {
         out.writeObject(records);
         out.flush();
     }
-    
-    private void sendMoves() throws IOException{
+
+    private void sendMoves() throws IOException {
         out.writeInt(GET_MOVES);
         int id = in.readInt();
-        
         Vector<String> moves = DB.getMoves(id);
         out.writeObject(moves);
         out.flush();
     }
 
-    private void saveRecord() throws IOException, ClassNotFoundException {
-        out.writeInt(SAVE_RECORD);
+    private void saveRecordOverNetwork() throws IOException, ClassNotFoundException {
+        out.writeInt(SAVE_RECORD_NOTIFICATION);
         String winner = in.readUTF();
         String loser = in.readUTF();
         Vector<String> moves = (Vector<String>) in.readObject();
-        int id = findPlayer(anotherUserName).lastRecordId;
+        int id = findPlayer(anotherUserName).record_id;
         if (id != -1) {
             if (DB.connectRecordIdToPlayers(id, userName)) {
                 System.out.println("i am " + userName + " only connect record id to me");
@@ -252,14 +254,30 @@ public class ConnectionHandeller extends Thread {
                 out.writeUTF("Game Record Not Saved Successfully");
             }
         } else {
-            lastRecordId = DB.addRecord(moves, winner, loser);
-            if (lastRecordId != -1) {
+            record_id = DB.addRecord(moves, winner, loser);
+            if (record_id != -1) {
                 System.out.println("i am " + userName + " insert new record id to me");
-                DB.connectRecordIdToPlayers(lastRecordId, userName);
+                DB.connectRecordIdToPlayers(record_id, userName);
                 out.writeUTF("Game Record Saved Successfully");
             } else {
                 out.writeUTF("Game Record Not Saved Successfully");
             }
+        }
+        out.flush();
+    }
+
+    private void saveRecordLocalMode() throws IOException, ClassNotFoundException {
+        out.writeInt(SAVE_RECORD_NOTIFICATION);
+        String winner = in.readUTF();
+        String loser = in.readUTF();
+        Vector<String> moves = (Vector<String>) in.readObject();
+        record_id = DB.addRecord(moves, winner, loser);
+        if (record_id != -1) {
+            System.out.println("i am " + userName + " insert new record id to me");
+            DB.connectRecordIdToPlayers(record_id, userName);
+            out.writeUTF("Game Record Saved Successfully");
+        } else {
+            out.writeUTF("Game Record Not Saved Successfully");
         }
         out.flush();
     }
